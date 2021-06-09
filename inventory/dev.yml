@@ -1,0 +1,29 @@
+all:
+  hosts:
+    testServer:
+      ansible_host: 192.168.0.110
+      ansible_port: 33333
+      ansible_user: vagrant
+      ansible_password: vagrant
+
+    docker_test:
+      ansible_host: 127.0.0.1
+      ansible_port: 3333
+      ansible_user: root
+      ansible_password: root
+
+    target_centos_7:
+      ansible_host: 192.168.50.12
+      ansible_port: 22
+      ansible_user: vagrant
+      ansible_ssh_private_key_file: '{{ inventory_dir }}/../.vagrant/machines/{{ inventory_hostname }}/virtualbox/private_key'
+      #ansible_password: password
+
+  children:
+    prod:
+      hosts:
+        testServer:
+    dev:
+      hosts:
+        target_centos_7:
+        docker_test:

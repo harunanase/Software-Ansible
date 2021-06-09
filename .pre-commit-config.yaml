@@ -1,0 +1,28 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.4.0
+  hooks:
+    - id: trailing-whitespace
+      args:
+        - --markdown-linebreak-ext=md
+      exclude_types:
+        - diff
+    - id: end-of-file-fixer
+    - id: check-yaml
+    - id: check-added-large-files
+
+- repo: https://github.com/ansible/ansible-lint.git
+  rev: v4.2.0
+  hooks:
+    - id: ansible-lint
+      files: \.(yaml|yml)$
+
+- repo: https://github.com/jumanjihouse/pre-commit-hooks
+  rev: 2.1.5
+  hooks:
+    - id: shellcheck
+
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.23.2
+  hooks:
+    - id: markdownlint

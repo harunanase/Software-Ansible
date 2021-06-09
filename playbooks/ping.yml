@@ -1,0 +1,6 @@
+- name: Check the nodes can be connected
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Using ping to check if the node can be connected
+      ping:

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+export PATH="$PATH":{{ docker_install_path }}/bin
+nohup {{ docker_install_path }}/bin/dockerd \
+    --data-root {{ docker_data_root }} \
+    --exec-root {{ docker_exec_root }} \
+    --pidfile {{ docker_pid_file }} \
+    &> {{ docker_install_path }}/logs/docker.log &
