@@ -1,2 +1,0 @@
-- name: main tasks
-  include_tasks: "{{ role_path }}/tasks/tasks.d/install_docker.yml"

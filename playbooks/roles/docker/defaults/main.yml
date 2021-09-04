@@ -1,0 +1,10 @@
+os: Linux
+os_arch: x86_64
+docker_install_path: /opt/docker
+docker_version: 20.10.7
+
+docker_data_root: '{{ docker_install_path }}/data'
+docker_exec_root: '{{ docker_install_path }}/exec'
+docker_pid_file: '{{ docker_install_path }}/tmp/docker.pid'
+
+docker_compose_version: 1.29.2

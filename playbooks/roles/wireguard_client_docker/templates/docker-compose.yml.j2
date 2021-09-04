@@ -1,0 +1,26 @@
+version: "2.1"
+services:
+  wireguard:
+    image: ghcr.io/linuxserver/wireguard
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Taipei
+    volumes:
+      - /lib/modules:/lib/modules
+      - {{ wg_installed_path }}/wg0.conf:/config/wg0.conf
+    ports:
+      - {{ wg_client_port }}:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - backbone
+    restart: unless-stopped
+
+networks:
+  backbone:
+    driver: bridge

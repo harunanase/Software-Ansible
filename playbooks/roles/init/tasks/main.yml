@@ -1,0 +1,2 @@
+- name: Init new machine - main task
+  include_tasks: "{{ role_path }}/tasks/tasks.d/init.yml"

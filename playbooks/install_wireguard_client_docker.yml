@@ -1,0 +1,4 @@
+- name: Install wireguard client (docker)
+  hosts: all
+  roles:
+    - role: wireguard_client_docker

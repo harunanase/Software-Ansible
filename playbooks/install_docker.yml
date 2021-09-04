@@ -1,4 +1,4 @@
 - name: Install docker and compose
   hosts: all
   roles:
-    - role: docker_ansible
+    - role: docker

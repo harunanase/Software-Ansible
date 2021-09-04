@@ -1,0 +1,2 @@
+- name: Install wireguard client - main task
+  include_tasks: "{{ role_path }}/tasks/tasks.d/install.yml"

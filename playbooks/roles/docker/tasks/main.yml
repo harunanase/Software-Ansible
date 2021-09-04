@@ -1,0 +1,6 @@
+- name: Check docker installed
+  include_tasks: "{{ role_path }}/tasks/tasks.d/check_docker_installed.yml"
+
+- name: Install docker
+  include_tasks: "{{ role_path }}/tasks/tasks.d/install.yml"
+  when: result.stat.exists == False

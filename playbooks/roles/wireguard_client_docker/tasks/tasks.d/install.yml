@@ -1,0 +1,59 @@
+- name: install yum ELRepo
+  become: True
+  yum:
+    name:
+      - epel-release
+      - https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm
+
+- name: install yum elrepo plugin
+  become: True
+  yum:
+    name: yum-plugin-elrepo
+
+- name: install wireguard kernel module
+  become: True
+  yum:
+    name:
+      - kmod-wireguard
+      - wireguard-tools
+
+- name: Reboot to apply module
+  become: True
+  reboot:
+
+- name: start docker daemon
+  become: True
+  shell: "source ~/.bashrc && start"
+
+- name: Add wireguard module
+  become: True
+  community.general.modprobe:
+    name: wireguard
+    state: present
+
+- name: make wireguard-client config directory
+  become: True
+  file:
+    path: "{{ wg_installed_path }}"
+    state: directory
+
+- name: copy wireguard config
+  become: True
+  template:
+    src: wg0.conf.j2
+    dest: "{{ wg_installed_path }}/wg0.conf"
+    mode: 0600
+
+- name: copy docker-compose.yml
+  become: True
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ wg_installed_path }}/docker-compose.yml"
+    mode: 0644
+
+- name: run service with docker-compose
+  become: True
+  shell: "source ~/.bashrc && docker-compose up -d"
+  args:
+    chdir: "{{ wg_installed_path }}"
+    executable: /bin/bash

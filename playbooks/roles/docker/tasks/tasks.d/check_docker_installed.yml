@@ -1,0 +1,4 @@
+- name: check docker exist
+  stat:
+    path: "{{ docker_install_path }}"
+  register: result

@@ -1,0 +1,10 @@
+- name: Check docker installed (will install if not exists)
+  #include_tasks: "{{ role_path }}/../docker/tasks/tasks.d/check_docker_installed.yml"
+  include_role:
+    name: docker
+
+#- name: Install docker
+#  include_tasks: "{{ playbook_path }}/roles/docker/tasks/tasks.d/install_docker.yml"
+
+- name: Install wireguard client (docker) - main task
+  include_tasks: "{{ role_path }}/tasks/tasks.d/install.yml"
