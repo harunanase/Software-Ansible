@@ -1,0 +1,15 @@
+- name: 暫停讓使用者確認配置
+  include: confirm.yml
+
+- name: 檢查 /etc/fstab 情況
+  include: fstab_check.yml
+  when: veracrypt_mode == "disk"
+
+- name: 下載 veracrypt 相關源碼
+  include: download.yml
+
+- name: 安裝 veracrypt 主程序
+  include: install.yml
+
+- name: 對指定 硬碟/卷 進行加密
+  include: encrypt.yml

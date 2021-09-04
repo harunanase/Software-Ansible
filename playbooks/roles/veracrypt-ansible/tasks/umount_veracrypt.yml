@@ -1,0 +1,34 @@
+- name: 驗證 veracrypt 執行檔是否正常
+  block:
+    - name: 檢查 veracrypt 執行檔
+      shell: "{{ veracrypt_bin_install_path }}/{{ veracrypt_executable }} --version | grep -i VeraCrypt"
+      register: check_veracrypt_bin
+      ignore_errors: True
+
+    - name: 確認 veracrypt 執行檔檢查結果
+      fail:
+        msg:
+          - "Veracrypt 執行檔：{{ veracrypt_bin_install_path }}/{{ veracrypt_executable }} 有錯誤！"
+          - "return code: {{ check_veracrypt_bin.rc }}"
+          - "錯誤內容：{{ check_veracrypt_bin.stderr }}"
+      when: check_veracrypt_bin.rc != 0
+
+- name: 檢查 目標硬碟/卷 是否已被 veracrypt 掛載
+  block:
+    - name: 檢查 veracrypt 掛載情況
+      shell: "{{ veracrypt_bin_install_path }}/{{ veracrypt_executable }} -l | grep {{ veracrypt_source_media }} |awk '{print $2; exit;}'"
+      register: check_target_mounted_by_veracrypt
+      ignore_errors: True
+
+    - name: 列印出檢查結果
+      debug:
+        msg: "檢查結果：{{ check_target_mounted_by_veracrypt }}"
+
+    - name: 檢查到 目標硬碟/卷 已被 veracrypt 掛載，解除掛載
+      become: True
+      command:
+        argv:
+          - "{{ veracrypt_bin_install_path }}/{{ veracrypt_executable }}"
+          - "-d"
+          - "{{ veracrypt_source_media }}"
+      when:  veracrypt_source_media in check_target_mounted_by_veracrypt.stdout

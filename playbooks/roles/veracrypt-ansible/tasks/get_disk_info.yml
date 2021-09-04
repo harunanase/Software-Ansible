@@ -1,0 +1,40 @@
+- name: 於目標機蒐集硬體資訊
+  setup:
+    gather_subset:
+      - hardware
+
+- name: 列印硬碟資訊
+  vars:
+    host: "{{ inventory_hostname }}"
+    msg: |
+      主機名稱：{{ hostvars[host].inventory_hostname }}
+      硬碟資訊：
+      {% for dev in hostvars[host].ansible_devices %}
+        name： [ {{ dev }} ], 總大小： {{ hostvars[host].ansible_devices[dev].size }}
+        host： {{ hostvars[host].ansible_devices[dev].host }}
+        model： {{ hostvars[host].ansible_devices[dev].model }}
+        vendor： {{ hostvars[host].ansible_devices[dev].vendor}}
+      {% for parts in hostvars[host].ansible_devices[dev].partitions %}
+          分區名： [ {{ parts }} ]，大小： {{ hostvars[host].ansible_devices[dev].partitions[parts].size }}
+      {% endfor %}
+      {% endfor %}
+  debug:
+    msg: "{{ msg.split('\n') }}"
+
+- name: 列印掛載資訊
+  vars:
+    host: "{{ inventory_hostname }}"
+    msg: |
+      主機名稱：{{ hostvars[host].inventory_hostname }}
+      掛載資訊：
+      {% for dev in hostvars[host].ansible_mounts %}
+
+        硬碟路徑： {{ dev.device }}
+        掛載路徑： {{ dev.mount }}
+        檔案系統： {{ dev.fstype }}
+        UUID： {{ dev.uuid }}
+
+        ========
+      {% endfor %}
+  debug:
+    msg: "{{ msg.split('\n') }}"
