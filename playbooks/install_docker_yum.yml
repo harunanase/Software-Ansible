@@ -1,0 +1,4 @@
+- name: Install docker and compose via yum
+  hosts: all
+  roles:
+    - role: docker_yum

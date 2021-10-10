@@ -1,0 +1,49 @@
+- name: Remove installed old version of docker
+  yum:
+    name:
+      - docker
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+    state: removed
+
+- name: Install yum-utils
+  yum:
+    name: yum-utils
+    state: latest
+
+- name: add docker repo
+  shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: Install docekr engine
+  yum:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+
+- name: Start and enable dockerd with systemd
+  when: enable_docker == true
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Get system operating system
+  shell: uname -s
+  register: sys_os
+
+- name: Get system architecture
+  shell: uname -m
+  register: sys_arch
+
+- name: Install docker-compose
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ sys_os.stdout }}-{{ sys_arch.stdout }}"
+    dest: /usr/local/bin/docker-compose
+    mode: 0755
