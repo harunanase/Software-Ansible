@@ -1,3 +1,20 @@
+- name: Add ELRepo
+  become: True
+  yum:
+    name: "{{ elrepo_download_url  }}"
+    state: latest
+
+- name: Install latest mainline kernel
+  become: True
+  yum:
+    name: kernel-ml
+    state: latest
+    enablerepo: elrepo-kernel
+
+- name: Remake grub config to pick up new kernel
+  become: True
+  command: grub2-mkconfig -o /boot/grub2/grub.cfg
+
 - name: set hostname
   become: True
   ansible.builtin.hostname:
@@ -6,11 +23,11 @@
 - name: set timezone
   become: True
   community.general.timezone:
-    name: Asia/Taipei
+    name: "{{ timezone }}"
 
 - name: stop firewalld
   become: True
-  ansible.builtin.systemd:
+  systemd:
     state: stopped
     name: firewalld
     enabled: no
@@ -26,11 +43,66 @@
     regexp: '^SELINUX=[a-z]*'
     replace: 'SELINUX=disabled'
 
+- name: remove unnecessary packages
+  become: True
+  yum:
+    name:
+      - postfix
+      - mysql-libs
+      - mariadb*
+      - gssproxy
+    state: absent
+
+- name: install epel-release
+  become: True
+  yum:
+    name: epel-release
+    state: present
+
+- name: install useful packages
+  become: True
+  yum:
+    name:
+      - vim
+      - htop
+      - net-tools
+      - iftop
+      - iotop
+      - unhide
+      - zip
+      - unzip
+      - lsof
+      - wget
+      - telnet
+      - p7zip
+    state: present
+
+- name: Stop and Disable the rpcbind services
+  become: True
+  systemd:
+    name: rpcbind
+    enabled: no
+    state: stopped
+
+- name: Stop and Disable the rpcbind.socket services
+  become: True
+  systemd:
+    name: rpcbind.socket
+    enabled: no
+    state: stopped
+
 - name: upgrade all packages
   become: True
   yum:
     name: '*'
     state: latest
+
+- name: Remove default system users
+  become: True
+  user:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ deleted_user_names }}"
 
 - name: reboot
   become: True

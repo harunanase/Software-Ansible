@@ -1,0 +1,16 @@
+timezone: "Asia/Taipei"
+deleted_user_names:
+  - postfix
+  - adm
+  - nfsnobody
+  - mail
+  - lp
+  - sync
+  - shutdown
+  - halt
+  - operator
+  - games
+  - ftp
+  - nobody
+  - rpc
+elrepo_download_url: "https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm"
