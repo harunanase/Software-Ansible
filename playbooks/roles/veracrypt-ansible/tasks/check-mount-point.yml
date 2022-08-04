@@ -1,0 +1,19 @@
+- name: 檢查掛載點是否已有其他加密碟掛載
+  block:
+    - name: 檢查 掛載點 掛載情況
+      register: check_mount_point_by_veracrypt
+      failed_when: False
+      shell: "{{ veracrypt_executable | default(veracrypt_command) | default('veracrypt') | quote }} -l | grep {{ veracrypt_mountpoint }} |awk '{print $4; exit;}'"
+
+    - name: 列印出檢查結果
+      debug:
+        msg: "檢查結果：{{ check_mount_point_by_veracrypt }}"
+
+    - name: 檢查到 目標掛載點 已被 VeraCrypt 使用其他硬碟掛載，解除掛載
+      when: veracrypt_mountpoint in check_mount_point_by_veracrypt.stdout
+      become: True
+      command:
+        argv:
+          - "{{ veracrypt_executable | default(veracrypt_command) | default('veracrypt') }}"
+          - "-d"
+          - "{{ veracrypt_mountpoint }}"

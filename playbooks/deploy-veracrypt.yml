@@ -1,0 +1,4 @@
+- name: 部署 VeraCrypt 加密存儲
+  hosts: all
+  roles:
+    - veracrypt-ansible

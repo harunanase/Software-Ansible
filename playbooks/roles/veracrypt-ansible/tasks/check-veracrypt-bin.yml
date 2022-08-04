@@ -1,0 +1,14 @@
+- name: 驗證 VeraCrypt 主程式是否正常
+  block:
+    - name: 檢查 VeraCrypt 主程式
+      register: check_veracrypt_bin
+      failed_when: False
+      shell: "{{ veracrypt_executable | default(veracrypt_command) | default('veracrypt') | quote }} --version | grep -i VeraCrypt"
+
+    - name: 確認 VeraCrypt 主程式檢查結果
+      when: check_veracrypt_bin.rc != 0
+      fail:
+        msg:
+          - "VeraCrypt 主程式：{{ veracrypt_executable | default(veracrypt_command) | default('veracrypt') }} 有錯誤！"
+          - "return code: {{ check_veracrypt_bin.rc }}"
+          - "錯誤內容：{{ check_veracrypt_bin.stderr }}"

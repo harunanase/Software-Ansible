@@ -1,0 +1,79 @@
+- name: 安裝 EPEL 軟題來源
+  become: True
+  yum:
+    name: epel-release
+    state: present
+
+- name: 安裝依賴軟體
+  become: True
+  yum:
+    name:
+      - fuse-devel
+      - binutils-devel
+      - yasm
+      - gcc-c++
+      - make
+    state: present
+
+- name: 建立 VeraCrypt 的源碼建構目錄
+  register: build_dir_raw
+  tempfile:
+    prefix: deploy-veracrypt.
+    state: directory
+
+- name: 定義源碼建構目錄路徑
+  set_fact:
+    build_dir: '{{ build_dir_raw.path }}'
+
+- name: 下載並解壓縮 VeraCrypt 所需的函式庫（wxWidgets）
+  unarchive:
+    src: "{{ wxwidgets_download_url }}"
+    dest: "{{ build_dir }}"
+    remote_src: yes
+
+- name: 下載 VeraCrypt 官方源碼
+  unarchive:
+    src: "{{ veracrypt_download_url }}"
+    dest: "{{ build_dir }}"
+    remote_src: yes
+
+- name: 編譯 wxWidgets 函式庫
+  make:
+    chdir: "{{ build_dir }}/{{ veracrypt_compile_dir_name }}"
+    target: wxbuild
+    params:
+      NOGUI: 1
+      WXSTATIC: 1
+      WX_ROOT: "{{ build_dir }}/{{ wxwidgets_compile_dir_name }}"
+
+- name: 編譯 VeraCrypt 主程式
+  make:
+    chdir: "{{ build_dir }}/{{ veracrypt_compile_dir_name }}"
+    params:
+      NOGUI: 1
+      WXSTATIC: 1
+
+- name: 產生隨機的 VeraCrypt 主程式名稱
+  set_fact:
+    veracrypt_executable_name: "{{ lookup('community.general.random_string', length=8, special=false) }}"
+
+- name: 決定 VeraCrypt 主程式路徑
+  set_fact:
+    veracrypt_executable: "{{ veracrypt_bin_install_path }}/{{ veracrypt_executable_name }}"
+
+- name: 移動 VeraCrypt 主程式到指定的安裝目錄
+  become: True
+  copy:
+    src: "{{ build_dir }}/{{ veracrypt_compile_dir_name }}/Main/veracrypt"
+    dest: "{{ veracrypt_executable }}"
+    mode: "0755"
+    remote_src: yes
+
+- name: Veracrypt 主程式安裝完成：列印 VeraCrypt 主程式安裝路徑
+  debug:
+    msg: "VeraCrypt 主程式路徑：{{ veracrypt_executable }}"
+
+- name: 移除 VeraCrypt 的源碼建構目錄
+  file:
+    path: "{{ build_dir }}"
+    state: absent

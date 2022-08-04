@@ -1,11 +1,12 @@
 - name: 加密卷模式下，產生隨機 volume 名稱（若使用者未特別指定加密卷名稱）
+  when: veracrypt_mode == "volume" and not veracrypt_source_media
   set_fact:
     veracrypt_source_media: "{{ veracrypt_volume_directory }}/.{{ lookup('community.general.random_string', length=8, special=false) }}"
-  when: veracrypt_mode == "volume" and veracrypt_source_media == ""
 
 - name: 印出使用者的配置
   block:
     - name: 印出資訊（加密碟模式）
+      when: veracrypt_mode == "disk"
       debug:
         msg:
           - "{{ inventory_hostname }} 的加密磁碟資訊"
@@ -13,10 +14,10 @@
           - "使用模式：加密碟模式"
           - "目標媒體：{{ veracrypt_source_media }}"
           - "檔案系統：{{ veracrypt_filesystem }}"
-          - "目標掛載點：{{ veracrypt_mount_point }}"
-      when: veracrypt_mode == "disk"
+          - "目標掛載點：{{ veracrypt_mountpoint }}"
 
     - name: 印出資訊（加密卷模式）
+      when: veracrypt_mode == "volume"
       debug:
         msg:
           - "{{ inventory_hostname }} 的加密卷資訊"
@@ -25,8 +26,7 @@
           - "目標媒體：{{ veracrypt_source_media }}"
           - "檔案系統：{{ veracrypt_filesystem }}"
           - "加密卷大小：{{ veracrypt_volume_size }}"
-          - "目標掛載點：{{ veracrypt_mount_point }}"
-      when: veracrypt_mode == "volume"
+          - "目標掛載點：{{ veracrypt_mountpoint }}"
 
 - name: 暫停讓使用者確認配置
   pause:

@@ -13,7 +13,7 @@
         name： [ {{ dev }} ], 總大小： {{ hostvars[host].ansible_devices[dev].size }}
         host： {{ hostvars[host].ansible_devices[dev].host }}
         model： {{ hostvars[host].ansible_devices[dev].model }}
-        vendor： {{ hostvars[host].ansible_devices[dev].vendor}}
+        vendor： {{ hostvars[host].ansible_devices[dev].vendor }}
       {% for parts in hostvars[host].ansible_devices[dev].partitions %}
           分區名： [ {{ parts }} ]，大小： {{ hostvars[host].ansible_devices[dev].partitions[parts].size }}
       {% endfor %}

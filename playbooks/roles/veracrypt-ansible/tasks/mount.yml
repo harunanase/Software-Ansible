@@ -1,0 +1,33 @@
+- name: 安裝「掛載 VeraCrypt 加密存儲」工作清單的依賴軟體
+  become: True
+  package:
+    name: expect
+
+- name: 驗證 VeraCrypt 主程式是否正常
+  include: check-veracrypt-bin.yml
+
+- name: 檢查欲掛載加密碟/卷，是否已被掛載
+  include: unmount.yml
+
+- name: 檢查掛載點是否已有其他加密碟掛載
+  include: check-mount-point.yml
+
+- name: 開始掛載
+  become: True
+  no_log: False
+  changed_when: True
+  args:
+    executable: /usr/bin/expect
+  shell: |
+    set timeout 60
+    spawn {{ veracrypt_executable | default(veracrypt_command) | quote }} {{ veracrypt_source_media | quote }} {{ veracrypt_mount_path | default("/opt") | quote }}
+
+    expect "Enter password for *:"
+    send "{{ veracrypt_password | regex_escape() }}\r"
+    expect "Enter PIM for *:"
+    send "{{ veracrypt_pim }}\r"
+    expect "Enter keyfile *:"
+    send "\r"
+    expect "Protect hidden volume (if any)? (y=Yes/n=No) *:"
+    send "\r"
+    expect eof

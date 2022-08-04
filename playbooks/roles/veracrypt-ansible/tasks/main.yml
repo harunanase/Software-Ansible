@@ -1,15 +1,166 @@
 - name: 暫停讓使用者確認配置
   include: confirm.yml
 
+- name: 確保操作識別編號已定義
+  include_tasks: set-operation-id.yml
+
+- name: 解除掛載原本可能已被掛載的 veracrypt_source_media 檔案系統
+  when: >-
+    veracrypt_source_media in
+    (ansible_mounts | community.general.json_query('[*].device'))
+  become: True
+  changed_when: True
+  command:
+    argv:
+      - umount
+      - "{{ veracrypt_source_media }}"
+
+  # Ansible mount 模組不會解除掛載 fstab 沒有的檔案系統
+  # [mount] Ability to temporarily mount a filesystem without altering
+  # /etc/fstab · Issue #84 · ansible-collections/ansible.posix
+  # https://github.com/ansible-collections/ansible.posix/issues/84
+  # mount:
+  #   path: "{{ veracrypt_source_media }}"
+  #   state: unmounted
+
 - name: 檢查 /etc/fstab 情況
-  include: fstab_check.yml
   when: veracrypt_mode == "disk"
+  include: fix-fstab.yml
 
-- name: 下載 veracrypt 相關源碼
-  include: download.yml
+- name: 自源碼建構並安裝 VeraCrypt
+  include: build-and-install-veracrypt.yml
 
-- name: 安裝 veracrypt 主程序
-  include: install.yml
+- name: 檢查 VeraCrypt 執行檔與確認硬碟是否已被 VeraCrypt 掛載
+  include: unmount.yml
 
-- name: 對指定 硬碟/卷 進行加密
-  include: encrypt.yml
+- name: 產生 VeraCrypt 掛載用的隨機密碼
+  set_fact:
+    veracrypt_password: "{{ lookup('community.general.random_string', length=32, override_special
+='!@#$%^&*()') }}"
+
+- name: 產生 VeraCrypt 掛載用的隨機 PIM 碼
+  set_fact:
+    veracrypt_pim: "{{ 10000 |random(start=1000, seed=inventory_hostname) }}"
+
+- name: 開始加密：加密碟模式
+  become: True
+  when: veracrypt_mode == "disk"
+  block:
+    - name: 加密碟模式：印出相關資訊，以防使用者遺失加密資訊
+      debug:
+        msg:
+          - "主機名稱：{{ inventory_hostname }}"
+          - "加密模式：{{ veracrypt_mode }}"
+          - "VeraCrypt 主程式路徑：{{ veracrypt_executable }}"
+          - "目標硬碟：{{ veracrypt_source_media }}"
+          - "掛載點：{{ veracrypt_mountpoint }}"
+          - "指定使用的檔案系統：{{ veracrypt_filesystem }}"
+          - "掛載密碼：{{ veracrypt_password }}"
+          - "掛載 PIM 碼：{{ veracrypt_pim }}"
+
+    - name: 加密碟模式：開始加密
+      command:
+        argv:
+          - "{{ veracrypt_executable }}"
+          - "--create"
+          - "{{ veracrypt_source_media }}"
+          - "--quick"
+          - "--encryption=AES"
+          - "--filesystem={{ veracrypt_filesystem }}"
+          - "--hash=SHA512"
+          - "--volume-type=normal"
+          - "--password={{ veracrypt_password }}"
+          - "--pim={{ veracrypt_pim }}"
+          - "--random-source=/dev/urandom"
+          - "--keyfiles="
+
+- name: 開始加密：加密卷模式
+  when: veracrypt_mode == "volume"
+  block:
+    - name: 加密卷模式：印出相關資訊，以防使用者遺失加密資訊
+      debug:
+        msg:
+          - "主機名稱：{{ inventory_hostname }}"
+          - "加密模式：{{ veracrypt_mode }}"
+          - "VeraCrypt 主程式路徑：{{ veracrypt_executable }}"
+          - "目標卷：{{ veracrypt_source_media }}"
+          - "目標卷的大小：{{ veracrypt_volume_size }}"
+          - "掛載點：{{ veracrypt_mountpoint }}"
+          - "指定使用的檔案系統：{{ veracrypt_filesystem }}"
+          - "掛載密碼：{{ veracrypt_password }}"
+          - "掛載 PIM 碼：{{ veracrypt_pim }}"
+
+    - name: 加密卷模式：開始加密
+      become: True
+      command:
+        argv:
+          - "{{ veracrypt_executable }}"
+          - "--create"
+          - "{{ veracrypt_source_media }}"
+          - "--quick"
+          - "--encryption=AES"
+          - "--filesystem={{ veracrypt_filesystem }}"
+          - "--hash=SHA512"
+          - "--volume-type=normal"
+          - "--password={{ veracrypt_password }}"
+          - "--pim={{ veracrypt_pim }}"
+          - "--random-source=/dev/urandom"
+          - "--keyfiles="
+          - "--size={{ veracrypt_volume_size }}"
+
+- name: 加密完成：掛載硬碟/卷（XFS 以外）
+  when: veracrypt_filesystem != "xfs"
+  include: mount.yml
+
+- name: 加密完成：掛載硬碟/卷（XFS）
+  when: veracrypt_filesystem == "xfs"
+  block:
+    - name: 檢查掛載點是否已有其他加密碟掛載
+      include: check-mount-point.yml
+
+    - name: XFS 初始化：暫時以 none 掛載硬碟
+      become: True
+      command:
+        argv:
+          - "{{ veracrypt_executable }}"
+          - "--filesystem=none"
+          - "{{ veracrypt_source_media }}"
+          - "{{ veracrypt_mountpoint }}"
+          - "--password={{ veracrypt_password }}"
+          - "--pim={{ veracrypt_pim }}"
+          - "--keyfiles="
+          - "--non-interactive"
+
+    - name: 獲取掛載後的硬碟路徑
+      register: emulated_drive_raw
+      shell: "{{ veracrypt_executable }} -l | grep {{ veracrypt_source_media }} |awk '{print $3; exit;}'"
+
+    - name: XFS 初始化：以 XFS 格式來格式化硬碟
+      become: True
+      community.general.filesystem:
+        fstype: xfs
+        dev: "{{ emulated_drive_raw.stdout }}"
+
+    - name: XFS 初始化：卸載硬碟
+      include: unmount.yml
+
+    - name: XFS 初始化：重新掛載硬碟
+      include: mount.yml
+
+- name: 定義加密存儲資訊的文件路徑
+  set_fact:
+    veracrypt_infofile: '{{ lookup("env", "PWD") }}/veracrypt-info.{{ operation_id }}.md'
+
+- name: 將加密碟資訊寫回本地端
+  delegate_to: localhost
+  run_once: True
+  template:
+    src: veracrypt-info.md.j2
+    dest: "{{ veracrypt_infofile }}"
+    mode: "0400"
+
+- name: 輸出轉換結果
+  delegate_to: localhost
+  run_once: True
+  debug:
+    msg: '轉換成功，檔案保存於 "{{ veracrypt_infofile }}"'

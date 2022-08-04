@@ -1,0 +1,27 @@
+# 檢查 veracrypt_source_media 的檔案系統是否還會在開機時自動被掛載
+- name: 執行 `mount -a` 命令模擬開機檔案系統自動掛載情境
+  become: True
+  register: automount_test_result_raw
+  changed_when: True
+  failed_when: False
+  args:
+    warn: no
+  command: mount -a
+
+- name: 檢查 `mount -a` 命令執行結果並在執行失敗時提供適當的提示訊息
+  when: automount_test_result_raw.rc != 0
+  fail:
+    msg: "錯誤：無法成功觸發檔案系統自動掛載，請檢查 /etc/fstab"
+
+- name: 重新獲取已掛載檔案系統資訊
+  setup:
+    filter:
+      - ansible_mounts
+    gather_subset:
+      - hardware
+
+- name: 確認沒有 veracrypt_source_media 的檔案系統
+  assert:
+    that:
+      - veracrypt_source_media not in (ansible_mounts | community.general.json_query('[*].device'))
+    fail_msg: '{{ veracrypt_source_media }}{% if veracrypt_source_media_uuid %}(UUID={{ veracrypt_source_media_uuid.stdout }}){% endif %} 仍被掛載，請登入系統排除問題！'

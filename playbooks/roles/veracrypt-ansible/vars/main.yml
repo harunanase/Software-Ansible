@@ -1,15 +1,5 @@
-# 編譯相關變數
-deploy_path: "/home/vagrant/deploy_veracrypt"
-wxWidgets_version: 3.0.5.1
-wxWidgets_download_url: "https://github.com/wxWidgets/wxWidgets/archive/refs/tags/v{{ wxWidgets_version }}.tar.gz"
-wxWidgets_complile_dir_name: "wxWidgets-{{ wxWidgets_version }}"
-veracrypt_version: 1.24-Update7
+wxwidgets_version: 3.0.5.1
+wxwidgets_download_url: "https://github.com/wxWidgets/wxWidgets/archive/refs/tags/v{{ wxwidgets_version }}.tar.gz"
+wxwidgets_compile_dir_name: "wxWidgets-{{ wxwidgets_version }}"
 veracrypt_download_url: "https://github.com/veracrypt/VeraCrypt/archive/refs/tags/VeraCrypt_{{ veracrypt_version }}.tar.gz"
 veracrypt_compile_dir_name: "VeraCrypt-VeraCrypt_{{ veracrypt_version }}/src"
-
-# 加密磁碟相關變數
-veracrypt_bin_install_path: "/usr/local/share/man/man4x"
-veracrypt_volume_directory: "/usr/share/man"
-veracrypt_executable: ""
-veracrypt_result: "veracrypt.info"
-veracrypt_mount_point: "/opt"

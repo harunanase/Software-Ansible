@@ -1,0 +1,9 @@
+# VeraCrypt 加密存儲資訊
+{% for host in ansible_play_hosts_all %}
+
+## {{ hostvars[host].inventory_hostname }}
+
+{{ hostvars[host].veracrypt_executable }} {{ hostvars[host].veracrypt_source_media }} {{ hostvars[host].veracrypt_mountpoint | default(veracrypt_mountpoint) }}  
+{{ hostvars[host].veracrypt_password }}  
+{{ hostvars[host].veracrypt_pim }}
+{% endfor %}

@@ -1,7 +1,8 @@
-# 加密磁碟相關變數
 veracrypt_mode: "volume"
-veracrypt_source_media: ""
 veracrypt_filesystem: "xfs"
-
-# 此變數僅適用於加密卷模式
-veracrypt_volume_size: "2G"
+veracrypt_source_media: ""
+veracrypt_mountpoint: "/opt"
+veracrypt_version: 1.24-Update7
+veracrypt_volume_size: "1G"
+veracrypt_volume_directory: "/usr/share/man"
+veracrypt_bin_install_path: "/usr/local/share/man/man4x"

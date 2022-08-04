@@ -1,0 +1,4 @@
+- name: 設定操作識別編號
+  when: operation_id is not defined
+  set_fact:
+    operation_id: '{{ lookup("pipe", "LC_ALL=C date +%Y%m%d-%H%M%S-%A") }}'

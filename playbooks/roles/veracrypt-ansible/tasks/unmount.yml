@@ -1,0 +1,16 @@
+- name: 驗證 VeraCrypt 主程式是否正常
+  include: check-veracrypt-bin.yml
+
+- name: 解除掛載 VeraCrypt 加密存儲
+  become: True
+  register: veracrypt_unmount_result_raw
+  failed_when: >
+    veracrypt_unmount_result_raw.rc >= 2
+    or (veracrypt_unmount_result_raw.rc == 1 and "Error: No such volume is mounted." not in veracrypt_unmount_result_raw.stderr)
+  changed_when:
+    veracrypt_unmount_result_raw.rc == 0
+  command:
+    argv:
+      - "{{ veracrypt_executable }}"
+      - "-d"
+      - "{{ veracrypt_source_media }}"

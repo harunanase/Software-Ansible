@@ -1,0 +1,7 @@
+- name: 解除掛載既有的 VeraCrypt 加密存儲
+  hosts: all
+  tasks:
+    - name: 載入掛載 VeraCrypt 加密存儲的 Ansible 角色工作清單
+      import_role:
+        name: veracrypt-ansible
+        tasks_from: unmount.yml

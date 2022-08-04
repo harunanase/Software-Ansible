@@ -1,0 +1,14 @@
+# Ansible 依賴資源宣告
+#
+# 編輯參考：
+#
+#   * Installing Multiple Roles From a File — Installing content
+#     — Ansible Documentation
+#     https://galaxy.ansible.com/docs/using/installing.html#id7
+
+roles: []
+#  - name:
+#    version:
+
+collections:
+  - name: community.general
