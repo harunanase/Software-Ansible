@@ -58,6 +58,7 @@
       - wget
       - telnet
       - p7zip
+      - rsync
     state: present
 
 - name: Stop and Disable the rpcbind services
