@@ -1,4 +1,5 @@
 - name: Remove installed old version of docker
+  become: True
   yum:
     name:
       - docker
@@ -12,38 +13,47 @@
     state: removed
 
 - name: Install yum-utils
+  become: True
   yum:
     name: yum-utils
     state: latest
 
 - name: add docker repo
+  become: True
   shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
-- name: Install docekr engine
+- name: Install docker engine
+  become: True
   yum:
     name:
       - docker-ce
       - docker-ce-cli
       - containerd.io
+      - docker-compose-plugin
     state: latest
 
+- name: Create Docker config store directory
+  become: True
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Config docker install path
+  become: True
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+    owner: root
+    group: root
+
 - name: Start and enable dockerd with systemd
+  become: True
   when: enable_docker == true
   ansible.builtin.systemd:
     name: docker
     state: started
     enabled: yes
-
-- name: Get system operating system
-  shell: uname -s
-  register: sys_os
-
-- name: Get system architecture
-  shell: uname -m
-  register: sys_arch
-
-- name: Install docker-compose
-  get_url:
-    url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ sys_os.stdout }}-{{ sys_arch.stdout }}"
-    dest: /usr/local/bin/docker-compose
-    mode: 0755
