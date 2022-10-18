@@ -98,6 +98,12 @@
     state: latest
     enablerepo: elrepo-kernel
 
+- name: Remove elrepo-release package
+  become: True
+  yum:
+    name: elrepo-release
+    state: removed
+
 - name: Remake grub config to pick up new kernel
   become: True
   command: grub2-mkconfig -o /boot/grub2/grub.cfg
