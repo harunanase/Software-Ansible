@@ -1,6 +1,7 @@
 - name: set hostname
   become: True
   ansible.builtin.hostname:
+    use: systemd
     name: "{{ inventory_hostname }}"
 
 - name: set timezone

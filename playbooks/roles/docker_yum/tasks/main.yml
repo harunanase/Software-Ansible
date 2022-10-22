@@ -43,6 +43,7 @@
 
 - name: Config docker install path
   become: True
+  when: is_config_docker_install_path == true
   template:
     src: daemon.json.j2
     dest: /etc/docker/daemon.json
