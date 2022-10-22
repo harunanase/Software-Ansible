@@ -1,5 +1,4 @@
 - name: 安裝「掛載 VeraCrypt 加密存儲」工作清單的依賴軟體
-  become: True
   package:
     name: expect
 
@@ -13,7 +12,6 @@
   include: check-mount-point.yml
 
 - name: 開始掛載
-  become: True
   no_log: False
   changed_when: True
   args:

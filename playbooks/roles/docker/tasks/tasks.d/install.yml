@@ -4,7 +4,6 @@
      dest: /tmp
 
 - name: unarchive prebuild binary file
-  become: True
   unarchive:
     remote_src: yes
     src: "/tmp/docker-{{ docker_version }}.tgz"
@@ -15,57 +14,47 @@
 
 
 - name: create installed path and directories
-  become: True
   file:
     path: "{{ docker_install_path }}/bin"
     state: directory
 
 - name: create logs directory
-  become: True
   file:
     path: "{{ docker_install_path }}/logs"
     state: directory
 
 - name: move binaries to installed path
-  become: True
   shell: mv /tmp/docker/* {{ docker_install_path }}/bin
 
 - name: create start scripts
-  become: True
   template:
     src: start.sh.j2
     dest: "{{ docker_install_path }}/bin/start"
     mode: 0755
 
 - name: create stop script
-  become: True
   template:
     src: stop.sh.j2
     dest: "{{ docker_install_path }}/bin/stop"
     mode: 0755
 
 - name: start docker daemon
-  become: True
   command: "{{ docker_install_path }}/bin/start"
 
 - name: install docker-compose
-  become: True
   get_url:
     url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-{{ os }}-{{ os_arch }}"
     dest: "{{ docker_install_path }}/bin/docker-compose"
     mode: 0755
 
 - name: update $PATH variable
-  become: True
   shell: "echo 'PATH=${PATH}:{{ docker_install_path }}/bin' > /etc/profile.d/docker.sh"
 
 - name: test docker
-  become: True
   command: "{{ docker_install_path }}/bin/docker --version"
   register: output_docker
 
 - name: test docker compose
-  become: True
   command: "{{ docker_install_path }}/bin/docker-compose --version"
   register: output_docker_compose
 

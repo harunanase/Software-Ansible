@@ -1,7 +1,6 @@
 - name: 檢查 /etc/fstab 是否有包含欲加密磁碟之資訊
   block:
     - name: 獲取加密磁碟的 UUID
-      become: True
       failed_when: False
       changed_when: False
       register: veracrypt_source_media_uuid
@@ -20,7 +19,6 @@
 
         - name: 移除 veracrypt_source_media 的自動掛載配置（區塊裝置路徑）
           when: check_fstab_disk_path.found
-          become: True
           lineinfile:
             dest: /etc/fstab
             regexp: "{{ veracrypt_source_media }}"
@@ -38,7 +36,6 @@
             state: absent
 
         - name: 移除 veracrypt_source_media 的自動掛載配置（UUID 唯一識別編號）
-          become: True
           lineinfile:
             dest: /etc/fstab
             regexp: "{{ veracrypt_source_media_uuid.stdout }}"

@@ -11,7 +11,6 @@
 
     - name: 檢查到 目標掛載點 已被 VeraCrypt 使用其他硬碟掛載，解除掛載
       when: veracrypt_mountpoint in check_mount_point_by_veracrypt.stdout
-      become: True
       command:
         argv:
           - "{{ veracrypt_executable | default(veracrypt_command) | default('veracrypt') }}"

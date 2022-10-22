@@ -1,11 +1,9 @@
 - name: 安裝 EPEL 軟題來源
-  become: True
   yum:
     name: epel-release
     state: present
 
 - name: 安裝依賴軟體
-  become: True
   yum:
     name:
       - fuse-devel
@@ -62,7 +60,6 @@
     veracrypt_executable: "{{ veracrypt_bin_install_path }}/{{ veracrypt_executable_name }}"
 
 - name: 移動 VeraCrypt 主程式到指定的安裝目錄
-  become: True
   copy:
     src: "{{ build_dir }}/{{ veracrypt_compile_dir_name }}/Main/veracrypt"
     dest: "{{ veracrypt_executable }}"

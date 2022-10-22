@@ -2,7 +2,6 @@
   include: check-veracrypt-bin.yml
 
 - name: 解除掛載 VeraCrypt 加密存儲
-  become: True
   register: veracrypt_unmount_result_raw
   failed_when: >
     veracrypt_unmount_result_raw.rc >= 2

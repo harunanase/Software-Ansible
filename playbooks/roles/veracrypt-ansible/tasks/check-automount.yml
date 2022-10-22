@@ -1,6 +1,5 @@
 # 檢查 veracrypt_source_media 的檔案系統是否還會在開機時自動被掛載
 - name: 執行 `mount -a` 命令模擬開機檔案系統自動掛載情境
-  become: True
   register: automount_test_result_raw
   changed_when: True
   failed_when: False

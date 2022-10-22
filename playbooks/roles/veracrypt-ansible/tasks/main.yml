@@ -8,7 +8,6 @@
   when: >-
     veracrypt_source_media in
     (ansible_mounts | community.general.json_query('[*].device'))
-  become: True
   changed_when: True
   command:
     argv:
@@ -43,7 +42,6 @@
     veracrypt_pim: "{{ 10000 |random(start=1000, seed=inventory_hostname) }}"
 
 - name: 開始加密：加密碟模式
-  become: True
   when: veracrypt_mode == "disk"
   block:
     - name: 加密碟模式：印出相關資訊，以防使用者遺失加密資訊
@@ -91,7 +89,6 @@
           - "掛載 PIM 碼：{{ veracrypt_pim }}"
 
     - name: 加密卷模式：開始加密
-      become: True
       command:
         argv:
           - "{{ veracrypt_executable }}"
@@ -119,7 +116,6 @@
       include: check-mount-point.yml
 
     - name: XFS 初始化：暫時以 none 掛載硬碟
-      become: True
       command:
         argv:
           - "{{ veracrypt_executable }}"
@@ -136,7 +132,6 @@
       shell: "{{ veracrypt_executable }} -l | grep {{ veracrypt_source_media }} |awk '{print $3; exit;}'"
 
     - name: XFS 初始化：以 XFS 格式來格式化硬碟
-      become: True
       community.general.filesystem:
         fstype: xfs
         dev: "{{ emulated_drive_raw.stdout }}"

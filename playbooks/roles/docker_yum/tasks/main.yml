@@ -1,5 +1,4 @@
 - name: Remove installed old version of docker
-  become: True
   yum:
     name:
       - docker
@@ -13,17 +12,14 @@
     state: removed
 
 - name: Install yum-utils
-  become: True
   yum:
     name: yum-utils
     state: latest
 
 - name: add docker repo
-  become: True
   shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
 - name: Install docker engine
-  become: True
   yum:
     name:
       - docker-ce
@@ -33,7 +29,6 @@
     state: latest
 
 - name: Create Docker config store directory
-  become: True
   file:
     path: /etc/docker
     state: directory
@@ -42,7 +37,6 @@
     mode: '0755'
 
 - name: Config docker install path
-  become: True
   when: is_config_docker_install_path == true
   template:
     src: daemon.json.j2
@@ -52,7 +46,6 @@
     group: root
 
 - name: Start and enable dockerd with systemd
-  become: True
   when: enable_docker == true
   ansible.builtin.systemd:
     name: docker
