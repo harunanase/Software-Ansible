@@ -52,6 +52,7 @@
       - telnet
       - p7zip
       - rsync
+      - bind-utils
     state: present
 
 - name: Stop and Disable the rpcbind services
