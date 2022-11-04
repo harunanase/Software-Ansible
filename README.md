@@ -16,7 +16,9 @@ to install your desire software.
 
 ## Current support software
 
-1. docker and docker-compose
+1. `docker` and `docker compose`
+2. veracrypt
+3. Init script for CentOS 7
 
 ## Config Options
 
