@@ -1,0 +1,71 @@
+- name: Remove installed old version of Docker
+  apt:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+    state: absent
+
+- name: Install required packages
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    update_cache: true
+    state: latest
+
+- name: add Docker GPG key
+  apt_key:
+    url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+    state: present
+
+- name: Add Docker Repo
+  apt_repository:
+    repo: "deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install docker engine
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    update_cache: true
+    state: latest
+
+- name: Create Docker config store directory
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create Docker root directory
+  file:
+    path: "{{ install_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Config docker install path
+  when: is_config_docker_install_path == true
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: Start and enable dockerd with systemd
+  when: enable_docker == true
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+    enabled: yes

@@ -1,0 +1,4 @@
+- name: Install docker and compose via apt (Debian-based system)
+  hosts: all
+  roles:
+    - role: docker_apt
