@@ -39,6 +39,7 @@
 - name: install useful packages
   yum:
     name:
+      - chrony
       - vim
       - htop
       - net-tools
@@ -54,6 +55,12 @@
       - rsync
       - bind-utils
     state: present
+
+- name: Start and Enable the chronyd service
+  systemd:
+    name: chronyd
+    enabled: yes
+    state: started
 
 - name: Stop and Disable the rpcbind services
   systemd:
