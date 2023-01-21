@@ -1,4 +1,6 @@
+.*.swp
 /.cache/
 /.vagrant/
 /playbooks/collections/*
 veracrypt.info
+/inventory/

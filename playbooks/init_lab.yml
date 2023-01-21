@@ -1,0 +1,4 @@
+- name: Init lab machine (Ubuntu)
+  hosts: all
+  roles:
+    - role: init_lab

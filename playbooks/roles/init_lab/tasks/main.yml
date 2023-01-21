@@ -1,0 +1,71 @@
+- name: Install dependencies
+  become: true
+  apt:
+    name:
+      - build-essential
+      - cmake
+      - vim-nox
+      - python3-dev
+      - git
+    update_cache: true
+    state: latest
+
+- name: Clone Personal Vim config via Git
+  git:
+    repo: "{{ personal_config_git_url }}"
+    dest: "{{ personal_config_install_path }}/"
+
+- name: Make soft link of .vimrc
+  file:
+    src: "{{ personal_config_install_path }}/.vimrc"
+    dest: "{{ user_home_path }}/.vimrc"
+    state: link
+
+- name: Install Vundle - Clone Vundle repo
+  git:
+    repo: "{{ vundle_git_url }}"
+    dest: "{{ user_home_path }}/.vim/bundle/Vundle.vim"
+
+- name: Install Vundle - Do PluginInstall
+  command: vim +PluginInstall +qall
+
+- name: Install Vim plugin - YouCompleteMe dependency
+  become: true
+  apt:
+    name:
+      - mono-complete
+      - golang
+      - nodejs
+      - openjdk-17-jdk
+      - openjdk-17-jre
+      - npm
+    update_cache: true
+    state: latest
+
+- name: Compile YouCompleteMe plugin
+  command: python3 install.py --all "{{ '--force-sudo' if ansible_user == 'root' else ''  }}"
+  args:
+    chdir: "{{ user_home_path }}/.vim/bundle/YouCompleteMe/"
+
+- name: Install Tmux
+  apt:
+    name:
+      - tmux
+    update_cache: true
+    state: latest
+
+- name: Make soft link of .tmux.conf
+  file:
+    src: "{{ personal_config_install_path }}/.tmux.conf"
+    dest: "{{ user_home_path }}/.tmux.conf"
+    state: link
+
+- name: Install other useful tools
+  become: true
+  apt:
+    name:
+      - tig
+      - wget
+      - tldr
+    update_cache: true
+    state: latest
