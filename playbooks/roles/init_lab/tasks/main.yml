@@ -67,5 +67,7 @@
       - tig
       - wget
       - tldr
+      - silversearcher-ag
+      - fzf
     update_cache: true
     state: latest
