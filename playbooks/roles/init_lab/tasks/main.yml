@@ -99,3 +99,8 @@
     regexp: '^(ZSH_THEME=).*'
     line: '\1"{{ zsh_theme }}"'
     backrefs: yes
+
+- name: Config default editor in .zshrc
+  lineinfile:
+    path: "~/.zshrc"
+    line: "export EDITOR=`which {{ default_editor }}`"
