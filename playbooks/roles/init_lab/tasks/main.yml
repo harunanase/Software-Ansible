@@ -1,3 +1,6 @@
+- name: Config timezone
+  timezone:
+    name: "{{ timezone }}"
 - name: Install dependencies
   become: true
   apt:
@@ -69,5 +72,30 @@
       - tldr
       - silversearcher-ag
       - fzf
+      - zsh
     update_cache: true
     state: latest
+
+- name: Download oh-my-zsh installation script
+  get_url:
+    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    dest: /tmp/install-oh-my-zsh.sh
+    mode: 0755
+
+- name: Start to install oh-my-zsh
+  command: /tmp/install-oh-my-zsh.sh --unattended
+
+- name: Clean oh-my-zsh install script
+  file:
+    path: /tmp/install-oh-my-zsh.sh
+    state: absent
+
+- name: Change default SHELL to zsh
+  shell: "chsh -s `which zsh`"
+
+- name: Change default zsh theme
+  lineinfile:
+    path: "~/.zshrc"
+    regexp: '^(ZSH_THEME=).*'
+    line: '\1"{{ zsh_theme }}"'
+    backrefs: yes
