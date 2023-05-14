@@ -3,6 +3,7 @@ personal_config_git_url: "https://github.com/harunanase/PersonalConfig.git"
 personal_config_install_path: "{{ user_home_path }}/PersonalConfig"
 
 vundle_git_url: "https://github.com/VundleVim/Vundle.vim.git"
+tpm_git_url: "https://github.com/tmux-plugins/tpm"
 timezone: "Asia/Taipei"
 zsh_theme: "risto"
 default_editor: "vim"

@@ -57,6 +57,11 @@
     update_cache: true
     state: latest
 
+- name: Install Tmux plugin manager - Clone tpm
+  git:
+    repo: "{{ tpm_git_url }}"
+    dest: "{{ user_home_path }}/.tmux/plugins/tmp"
+
 - name: Make soft link of .tmux.conf
   file:
     src: "{{ personal_config_install_path }}/.tmux.conf"
@@ -104,3 +109,4 @@
   lineinfile:
     path: "~/.zshrc"
     line: "export EDITOR=`which {{ default_editor }}`"
+
