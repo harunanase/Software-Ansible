@@ -60,13 +60,16 @@
 - name: Install Tmux plugin manager - Clone tpm
   git:
     repo: "{{ tpm_git_url }}"
-    dest: "{{ user_home_path }}/.tmux/plugins/tmp"
+    dest: "{{ user_home_path }}/.tmux/plugins/tpm"
 
 - name: Make soft link of .tmux.conf
   file:
     src: "{{ personal_config_install_path }}/.tmux.conf"
     dest: "{{ user_home_path }}/.tmux.conf"
     state: link
+
+- name: Install tmux plugins
+  command: "{{ user_home_path}}/.tmux/plugins/tpm/bin/install_plugins"
 
 - name: Install other useful tools
   become: true
