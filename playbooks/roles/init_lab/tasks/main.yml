@@ -46,11 +46,12 @@
     state: latest
 
 - name: Compile YouCompleteMe plugin
-  command: python3 install.py --all "{{ '--force-sudo' if ansible_user == 'root' else ''  }}"
+  command: python3 install.py "{{ '--force-sudo --all' if ansible_user == 'root' else '--all'  }}"
   args:
     chdir: "{{ user_home_path }}/.vim/bundle/YouCompleteMe/"
 
 - name: Install Tmux
+  become: true
   apt:
     name:
       - tmux
@@ -81,6 +82,7 @@
       - silversearcher-ag
       - fzf
       - zsh
+      - fonts-powerline
     update_cache: true
     state: latest
 
