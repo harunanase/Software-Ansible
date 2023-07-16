@@ -83,6 +83,7 @@
       - fzf
       - zsh
       - fonts-powerline
+      - htop
     update_cache: true
     state: latest
 
@@ -114,4 +115,16 @@
   lineinfile:
     path: "~/.zshrc"
     line: "export EDITOR=`which {{ default_editor }}`"
+
+- name: Create NerdFont directory
+  file:
+    path: "{{ user_home_path }}/.local/share/fonts"
+    state: directory
+    mode: '0755'
+
+- name: Install NerdFont
+  get_url:
+    url: https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/DroidSansMono/DroidSansMNerdFont-Regular.otf
+    dest: "{{ user_home_path }}/.local/share/fonts/DroidSansMNerdFont-Regular.otf"
+    mode: 0664
 
