@@ -1,6 +1,7 @@
 user_home_path: "{{ ansible_env.HOME }}"
 personal_config_git_url: "https://github.com/harunanase/PersonalConfig.git"
 personal_config_install_path: "{{ user_home_path }}/PersonalConfig"
+nvm_url: "https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh"
 
 vundle_git_url: "https://github.com/VundleVim/Vundle.vim.git"
 tpm_git_url: "https://github.com/tmux-plugins/tpm"

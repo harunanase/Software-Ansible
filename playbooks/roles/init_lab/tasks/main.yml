@@ -1,10 +1,12 @@
 - name: Config timezone
+  become: true
   timezone:
     name: "{{ timezone }}"
 - name: Install dependencies
   become: true
   apt:
     name:
+      - libncurses-dev
       - build-essential
       - cmake
       - vim-nox
@@ -12,6 +14,26 @@
       - git
     update_cache: true
     state: latest
+
+- name: Install latest vim from git source
+  git:
+    repo: "https://github.com/vim/vim.git"
+    dest: "/tmp/vim"
+
+- name: Configure vim with python3 interpreter
+  shell: ./configure --enable-python3interp
+  args:
+    chdir: /tmp/vim
+
+- name: Compile vim
+  make:
+    chdir: /tmp/vim
+
+- name: Install vim
+  make:
+    chdir: /tmp/vim
+    target: install
+  become: true
 
 - name: Clone Personal Vim config via Git
   git:
@@ -46,7 +68,7 @@
     state: latest
 
 - name: Compile YouCompleteMe plugin
-  command: python3 install.py "{{ '--force-sudo --all' if ansible_user == 'root' else '--all'  }}"
+  command: '{{ "python3 install.py --all --force-sudo" if ansible_user == "root" else "python3 install.py --all" }}'
   args:
     chdir: "{{ user_home_path }}/.vim/bundle/YouCompleteMe/"
 
@@ -128,3 +150,21 @@
     dest: "{{ user_home_path }}/.local/share/fonts/DroidSansMNerdFont-Regular.otf"
     mode: 0664
 
+- name: Download node version manager install script
+  get_url:
+    url: "{{ nvm_url }}"
+    dest: /tmp/install-nvm.sh
+    mode: 0755
+
+- name: Install nvm
+  shell: /tmp/install-nvm.sh
+
+- name: Add nvm env to .zshrc
+  shell: |
+    echo 'export NVM_DIR="$HOME/.nvm"' >> $HOME/.zshrc
+    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $HOME/.zshrc
+
+- name: Install latest version of node via nvm
+  shell: source $HOME/.zshrc && nvm install node
+  args:
+    executable: /usr/bin/zsh
